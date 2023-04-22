@@ -14,14 +14,15 @@ LANGUAGES = {
 
 class Translator:
     def __init__(self):
-        self.detector = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
-        self.translator = deepl.Translator(DEEPL_API_KEY)
+        # self.__detector = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
+        self.__detector = LanguageDetectorBuilder.from_all_languages_without(Language.RUSSIAN).build()
+        self.__translator = deepl.Translator(DEEPL_API_KEY)
 
     def get_language(self, text: str):
-        return LANGUAGES[self.detector.detect_language_of(text)]
+        return LANGUAGES[self.__detector.detect_language_of(text)]
 
     def translate_to(self, text: str, lang: str) -> str:
-        result = self.translator.translate_text(text, target_lang=lang)
+        result = self.__translator.translate_text(text, target_lang=lang)
         return result.text
 
 

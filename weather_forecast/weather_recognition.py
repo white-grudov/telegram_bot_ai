@@ -7,18 +7,19 @@ from flashgeotext.geotext import GeoText, GeoTextConfiguration
 from flashgeotext.lookup import LookupData, load_data_from_file
 from datetime import datetime
 
+from text_normalize import normalize
 
 class WeatherRecognition:
     LOCATION_NOT_FOUND = 0
 
     def __init__(self):
-        self.nlp = spacy.load("en_core_web_sm")
-        self.data = load_data_from_file('./files/cities_data.json')
+        self.__nlp = spacy.load("en_core_web_sm")
+        self.__data = load_data_from_file('./files/cities_data.json')
 
-        lookup = LookupData(name='cities500', data=self.data)
+        lookup = LookupData(name='cities500', data=self.__data)
         config = GeoTextConfiguration(**{"use_demo_data": False})
-        self.geotext = GeoText(config)
-        self.geotext.add(lookup)
+        self.__geotext = GeoText(config)
+        self.__geotext.add(lookup)
 
     def get_location_date(self, text: str):
         location = self.__extract_location(text)
@@ -28,19 +29,8 @@ class WeatherRecognition:
         date = self.__extract_and_translate_time(text)
         return location, date
 
-    def __normalize_text(self, text):
-        doc = self.nlp(text)
-
-        normalized_tokens = []
-        for token in doc:
-            if not token.is_stop and not token.is_punct:
-                normalized_tokens.append(token.lemma_.lower())
-
-        normalized_text = ' '.join(normalized_tokens)
-        return normalized_text
-
     def __extract_location(self, text):
-        results = self.geotext.extract(input_text=self.__normalize_text(text).title(), span_info=True)
+        results = self.__geotext.extract(input_text=normalize(self.__nlp, text).title(), span_info=True)
 
         country_code = ''
         for country in pycountry.countries:
