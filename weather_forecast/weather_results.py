@@ -4,7 +4,6 @@ from logger_setup import logger_setup
 from weather_forecast.weather_recognition import WeatherRecognition
 from weather_forecast.weather_requests import generate_weather_forecast
 
-weather_not_related = 'This request isn\'t related to weather!'
 location_not_found = 'The location specified does not exist'
 
 logger = logger_setup(__name__)
@@ -15,10 +14,7 @@ def get_weather_forecast(message: str):
     try:
         location, date = wr.get_location_date(message)
 
-        if location == WeatherRecognition.WEATHER_NOT_RELATED:
-            logger.info('Request is not related to weather')
-            return weather_not_related
-        elif location == WeatherRecognition.LOCATION_NOT_FOUND:
+        if location == WeatherRecognition.LOCATION_NOT_FOUND:
             logger.info('Location is invalid')
             return location_not_found
         logger.debug(f'Extracted data: {location}, {date}')

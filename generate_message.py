@@ -23,7 +23,7 @@ def generate_message(message: str) -> str:
     try:
         lang = tr.get_language(message)
         logger.debug(f'Request language: {lang}')
-        translated = tr.translate_to(message, 'en')
+        translated = tr.translate_to(message, 'en-us')
         logger.debug(f'Translated: {translated}')
 
         intent = get_intent(translated)
