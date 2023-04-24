@@ -55,7 +55,7 @@ class IntentClassifier:
         else:
             return predicted_intent
 
-    def save_model(self, model_filename):
+    def save_model(self, model_filename: str):
         joblib.dump(self.__pipeline, model_filename)
 
     def load_model_from_file(self, model_filename: str):

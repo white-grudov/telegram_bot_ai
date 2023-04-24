@@ -1,5 +1,4 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.dispatcher.filters import Command
 from aiogram.types import Message, CallbackQuery
 
 from translator import Translator
@@ -37,17 +36,11 @@ Type your request by specifying the location and date (if no date specified, the
 
 Press the buttons below to view this message in one of supported languages.'''
 
-async def process_callback_button(callback_query: CallbackQuery, bot):
+async def process_callback_help(callback_query: CallbackQuery, bot):
     if not callback_query.data in languages:
         return
 
-    keyboard = InlineKeyboardMarkup(row_width=6)
-
-    current_buttons = buttons[:]
-    index = languages.index(callback_query.data)
-    current_buttons[index].style = "primary"
-
-    keyboard.add(*current_buttons)
+    keyboard = InlineKeyboardMarkup(row_width=6).add(*buttons)
 
     await bot.edit_message_text(
         chat_id=callback_query.message.chat.id,
@@ -60,7 +53,5 @@ async def start_command_handler(message: Message):
     await message.answer("Hello! I'm a Telegram bot. Use /help to see what I can do.")
 
 async def help_command_handler(message: Message):
-    current_buttons = buttons[:]
-    keyboard = InlineKeyboardMarkup(row_width=6).add(*current_buttons)
-
+    keyboard = InlineKeyboardMarkup(row_width=6).add(*buttons)
     await message.answer(get_help_message('en-us'), reply_markup=keyboard)

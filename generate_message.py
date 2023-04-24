@@ -6,8 +6,7 @@ from intent_classifier import IntentClassifier
 logger = logger_setup(__name__)
 
 tr = Translator()
-classifier = IntentClassifier()
-classifier.load_model_from_file('./files/intent_classifier.pkl')
+classifier = IntentClassifier().load_model_from_file('./files/intent_classifier.pkl')
 
 def __get_intent(message: str):
     intent = classifier.predict_intent(message)

@@ -3,6 +3,8 @@ import deepl
 from lingua import Language, LanguageDetectorBuilder
 from config import DEEPL_API_KEY
 
+from language_classifier import LanguageClassifier
+
 LANGUAGES = {
     Language.ENGLISH: 'en',
     Language.UKRAINIAN: 'uk',
@@ -14,7 +16,7 @@ LANGUAGES = {
 
 class Translator:
     def __init__(self):
-        self.__detector = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
+        self.__detector = LanguageClassifier().load_model_from_file('./files/language_classifier.pkl')
         self.__translator = deepl.Translator(DEEPL_API_KEY)
 
     def detect_lang_from_supported(self, text: str):
