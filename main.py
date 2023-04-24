@@ -2,6 +2,8 @@ import logging
 import aiogram
 from aiogram import Bot, Dispatcher, types
 
+from bot_commands import process_callback_button, start_command_handler, help_command_handler
+
 import config as conf
 from generate_message import generate_message
 from logger_setup import logger_setup
@@ -13,14 +15,9 @@ logger = logger_setup(__name__)
 bot = Bot(token=conf.TELEGRAM_BOT_TOKEN)
 dp = Dispatcher(bot)
 
-@dp.message_handler(commands='start')
-async def start_command_handler(message: types.Message):
-    await message.answer("Hello! I'm a Telegram bot. Use /help to see what I can do.")
-
-@dp.message_handler(commands='help')
-async def help_command_handler(message: types.Message):
-    help_text = "Here are the available commands:\n/start - Start the bot\n/help - Get help with using the bot"
-    await message.answer(help_text)
+dp.register_callback_query_handler(lambda callback_query: process_callback_button(callback_query, bot))
+dp.register_message_handler(start_command_handler, commands='start')
+dp.register_message_handler(help_command_handler, commands='help')
 
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def echo_message(message: types.Message):

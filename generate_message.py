@@ -23,8 +23,12 @@ def generate_message(message: str) -> str:
     try:
         lang, translated = tr.detect_lang_and_translate_to_en(message)
         lang = lang.lower()
-
         logger.debug(f'Request language: {lang}')
+
+        if not lang in tr.supported_languages:
+            lang = tr.detect_lang_from_supported(message)
+            logger.debug(f'Request language from supported: {lang}')
+
         logger.debug(f'Translated: {translated}')
 
         intent = __get_intent(translated)

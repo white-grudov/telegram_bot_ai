@@ -1,10 +1,24 @@
 import deepl
 
+from lingua import Language, LanguageDetectorBuilder
 from config import DEEPL_API_KEY
+
+LANGUAGES = {
+    Language.ENGLISH: 'en',
+    Language.UKRAINIAN: 'uk',
+    Language.POLISH: 'pl',
+    Language.SPANISH: 'es',
+    Language.GERMAN: 'de',
+    Language.FRENCH: 'fr'
+}
 
 class Translator:
     def __init__(self):
+        self.__detector = LanguageDetectorBuilder.from_languages(*LANGUAGES).build()
         self.__translator = deepl.Translator(DEEPL_API_KEY)
+
+    def detect_lang_from_supported(self, text: str):
+        return LANGUAGES[self.__detector.detect_language_of(text)]
     
     def detect_lang_and_translate_to_en(self, text: str) -> tuple[str, str]:
         result = self.__translator.translate_text(text, target_lang='en-us')
@@ -13,6 +27,10 @@ class Translator:
     def translate_to(self, text: str, lang: str) -> str:
         result = self.__translator.translate_text(text, target_lang=lang)
         return result.text
+    
+    @property
+    def supported_languages(self):
+        return LANGUAGES.values()
 
 
 if __name__ == '__main__':
@@ -26,5 +44,5 @@ if __name__ == '__main__':
     lang, translated = tr.detect_lang_and_translate_to_en(test)
     print(f'Detected language: {lang}, translated: {translated}')
 
-    original_language = tr.get_language(test)
+    original_language = tr.detect_lang_from_supported(test)
     print("Original language:", original_language)
