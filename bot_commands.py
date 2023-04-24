@@ -1,3 +1,4 @@
+from aiogram import Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types import Message, CallbackQuery
 
@@ -36,7 +37,7 @@ Type your request by specifying the location and date (if no date specified, the
 
 Press the buttons below to view this message in one of supported languages.'''
 
-async def process_callback_help(callback_query: CallbackQuery, bot):
+async def process_callback_help(callback_query: CallbackQuery, bot: Bot):
     if not callback_query.data in languages:
         return
 

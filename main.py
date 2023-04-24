@@ -35,9 +35,10 @@ async def echo_message(message: Message):
         input_message = message.text
 
     logger.info(f'Message text: {input_message}')
-    result = generate_message(input_message)
 
+    result = generate_message(input_message)
     logger.info(f'Request result: {result}')
+    
     await message.answer(result)
 
 if __name__ == '__main__':

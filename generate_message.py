@@ -6,7 +6,8 @@ from intent_classifier import IntentClassifier
 logger = logger_setup(__name__)
 
 tr = Translator()
-classifier = IntentClassifier().load_model_from_file('./files/intent_classifier.pkl')
+classifier = IntentClassifier()
+classifier.load_model_from_file('./files/intent_classifier.pkl')
 
 def __get_intent(message: str):
     intent = classifier.predict_intent(message)
@@ -21,12 +22,10 @@ def __generate_message_from_intent(message, intent):
 def generate_message(message: str) -> str:
     try:
         lang, translated = tr.detect_lang_and_translate_to_en(message)
-        lang = lang.lower()
         logger.debug(f'Request language: {lang}')
 
-        if not lang in tr.supported_languages:
-            lang = tr.detect_lang_from_supported(message)
-            logger.debug(f'Request language from supported: {lang}')
+        if lang == 'unknown':
+            return 'This language is not supported'
 
         logger.debug(f'Translated: {translated}')
 
