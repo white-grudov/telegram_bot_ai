@@ -29,6 +29,12 @@ class Translator:
         result = self.__translator.translate_text(text, target_lang='en-us').text
         return lang, result
 
+    def translate_from_en(self, text: str, lang: str) -> str:
+        if lang == 'en-us':
+            return text
+        result = self.__translator.translate_text(text, source_lang='en', target_lang=lang)
+        return result.text
+
     def translate_to(self, text: str, lang: str) -> str:
         result = self.__translator.translate_text(text, target_lang=lang)
         return result.text
@@ -39,15 +45,11 @@ class Translator:
 
 
 if __name__ == '__main__':
-    test = "Jaka pogoda jest w Czarnomorsku?"
-
     tr = Translator()
 
-    translated_text = tr.translate_to(test, 'en-us')
-    print('Translated text:', translated_text)
+    # first_text = 'Знайди зображення милого котика.'
+    # lang, first_translated = tr.detect_lang_and_translate_to_en(first_text)
+    lang = 'uk'
 
-    lang, translated = tr.detect_lang_and_translate_to_en(test)
-    print(f'Detected language: {lang}, translated: {translated}')
-
-    original_language = tr.detect_lang_from_supported(test)
-    print("Original language:", original_language)
+    second_text = 'a cute cat'
+    print(tr.translate_from_en(second_text, lang))

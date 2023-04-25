@@ -8,7 +8,7 @@ from bot_commands import process_callback_help, \
                          help_command_handler
 
 import config
-from generate_message import generate_message
+from generate_message import GenerateMessage
 from logger_setup import logger_setup
 
 logging.basicConfig(level=logging.ERROR)
@@ -16,6 +16,7 @@ logger = logger_setup(__name__)
 
 bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
 dp = Dispatcher(bot)
+generate = GenerateMessage(bot)
 
 dp.register_callback_query_handler(lambda callback_query: process_callback_help(callback_query, bot))
 dp.register_message_handler(start_command_handler, commands='start')
@@ -36,10 +37,7 @@ async def echo_message(message: Message):
 
     logger.info(f'Message text: {input_message}')
 
-    result = generate_message(input_message)
-    logger.info(f'Request result: {result}')
-    
-    await message.answer(result)
+    await generate.generate_message(message.chat.id, input_message)
 
 if __name__ == '__main__':
     aiogram.executor.start_polling(dp, skip_updates=True)
