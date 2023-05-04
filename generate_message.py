@@ -27,15 +27,13 @@ class GenerateMessage:
         if lang == 'unknown':
             await self.__respond(chat_id, 'This language is not supported')
 
-        logger.debug(f'Translated: {message}')
-
         request_result = get_weather_forecast(message)
         request_result = self.__tr.translate_from_en(request_result, lang)
         logger.debug(f'Translated results: {request_result}')
 
         await self.__respond(chat_id, request_result)
 
-    async def __process_image_request(self, chat_id, message):
+    async def __process_image_request(self, chat_id, message, lang):
         query = self.__image_search.extract_subject(message)
         if query is None:
             await self.__respond(chat_id, 'The search subject is not specified')
@@ -47,12 +45,16 @@ class GenerateMessage:
             self.__respond(chat_id, self.__tr.translate_from_en(
                 'Unfortunately, the image was not found. Please try another request'))
 
-        await send_image_message(self.__bot, chat_id, request_url)
+        caption = f'Here is the image according to your query <b>"{query}"</b>'
+        caption = self.__tr.translate_from_en(caption, lang)
+        logger.debug(f'Caption: {caption}')
+        await send_image_message(self.__bot, chat_id, request_url, caption)
 
     async def generate_message(self, chat_id, message: str) -> str:
         try:
             lang, translated = self.__tr.detect_lang_and_translate_to_en(message)
             logger.debug(f'Request language: {lang}')
+            logger.debug(f'Translated: {translated}')
 
             intent = self.__get_intent(translated)
             logger.info(f'Intent: {intent}')
@@ -60,7 +62,7 @@ class GenerateMessage:
             if intent == 'weather':
                 await self.__process_weather_request(chat_id, translated, lang)
             elif intent == 'image':
-                await self.__process_image_request(chat_id, translated)
+                await self.__process_image_request(chat_id, translated, lang)
             else:
                 await self.__respond(chat_id, 'Unrecognized intent')
 

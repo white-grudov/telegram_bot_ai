@@ -26,7 +26,7 @@ class Translator:
     
     def detect_lang_and_translate_to_en(self, text: str) -> tuple[str, str]:
         lang = self.detect_lang_from_supported(text)
-        result = self.__translator.translate_text(text, target_lang='en-us').text
+        result = self.__translator.translate_text(text, source_lang=lang, target_lang='en-us').text
         return lang, result
 
     def translate_from_en(self, text: str, lang: str) -> str:

@@ -7,9 +7,10 @@ def __date_to_string(date_str: str) -> str:
 
     day = date_object.day
     suffix = 'th' if 11 <= day <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
-    formatted_date = date_object.strftime("the %d{} of %B".format(suffix))
+    formatted_date = date_object.strftime("the {}{} of %B".format(day, suffix))
 
     return formatted_date
+
 
 def __get_weather_forecast(location, lat, lon, days):
     start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
