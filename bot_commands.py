@@ -5,6 +5,7 @@ from aiogram.types import Message, CallbackQuery
 import json
 from translator import Translator
 from logger_setup import logger_setup
+from config import USERNAME
 
 logger = logger_setup(__name__)
 
@@ -21,7 +22,7 @@ buttons = [
     InlineKeyboardButton('🇫🇷', callback_data=languages[5]),
 ]
 
-def get_help_message(lang: str) -> str:
+async def get_help_message(lang: str) -> str:
     with open('./files/messages.json', 'r', encoding='utf-8') as f:
         return json.loads(f.read())['help_message'][lang]
 
@@ -34,7 +35,7 @@ async def process_callback_help(callback_query: CallbackQuery, bot: Bot):
     await bot.edit_message_text(
         chat_id=callback_query.message.chat.id,
         message_id=callback_query.message.message_id,
-        text=get_help_message(callback_query.data),
+        text=await get_help_message(callback_query.data),
         reply_markup=keyboard,
         parse_mode='html'
     )
@@ -53,3 +54,19 @@ async def send_text_message(bot: Bot, chat_id: str, text: str):
 async def send_image_message(bot: Bot, chat_id: str, image_url: str, caption=None):
     logger.info(f'Request image url: {image_url}')
     await bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption, parse_mode='html')
+
+async def echo_message(message: Message, generate):
+    if message.chat.type == 'group':
+        if USERNAME not in message.text:
+            return
+        else:
+            logger.debug(f'Message from a group {message.chat.title} ({message.chat.id})')
+            input_message = message.text.replace(USERNAME, '')
+    else:
+        logger.debug(f'Message from a user {message.chat.first_name} {message.chat.last_name} '
+                     f'{message.chat.username} ({message.chat.id})')
+        input_message = message.text
+
+    logger.info(f'Message text: {input_message}')
+
+    await generate.generate_message(message.chat.id, input_message)

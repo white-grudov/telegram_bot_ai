@@ -1,43 +1,36 @@
 import logging
-import aiogram
+import tracemalloc
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message, ContentType
+from aiogram.types import ContentType
 
 from bot_commands import process_callback_help, \
                          start_command_handler, \
-                         help_command_handler
+                         help_command_handler, \
+                         echo_message
 
 import config
+import asyncio
+
 from generate_message import GenerateMessage
 from logger_setup import logger_setup
 
 logging.basicConfig(level=logging.ERROR)
 logger = logger_setup(__name__)
 
-bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
-dp = Dispatcher(bot)
-generate = GenerateMessage(bot)
+async def main():
+    tracemalloc.start()
 
-dp.register_callback_query_handler(lambda callback_query: process_callback_help(callback_query, bot))
-dp.register_message_handler(start_command_handler, commands='start')
-dp.register_message_handler(help_command_handler, commands='help')
+    bot = Bot(token=config.TELEGRAM_BOT_TOKEN)
+    dp = Dispatcher(bot)
+    generate = GenerateMessage(bot)
 
-@dp.message_handler(content_types=ContentType.TEXT)
-async def echo_message(message: Message):
-    if message.chat.type == 'group':
-        if config.USERNAME not in message.text:
-            return
-        else:
-            logger.debug(f'Message from a group {message.chat.title} ({message.chat.id})')
-            input_message = message.text.replace(config.USERNAME, '')
-    else:
-        logger.debug(f'Message from a user {message.chat.first_name} {message.chat.last_name} '
-                     f'{message.chat.username} ({message.chat.id})')
-        input_message = message.text
-
-    logger.info(f'Message text: {input_message}')
-
-    await generate.generate_message(message.chat.id, input_message)
+    dp.register_callback_query_handler(lambda callback_query: process_callback_help(callback_query, bot))
+    dp.register_message_handler(start_command_handler, commands='start')
+    dp.register_message_handler(help_command_handler, commands='help')
+    dp.register_message_handler(lambda m, g=generate: echo_message(m, g),
+                                content_types=ContentType.TEXT)
+    
+    await dp.start_polling()
 
 if __name__ == '__main__':
-    aiogram.executor.start_polling(dp, skip_updates=True)
+    asyncio.run(main())

@@ -4,7 +4,7 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
-def normalize(nlp, text):
+async def normalize(nlp, text):
     doc = nlp(text.lower())
 
     tokens = [token.text for token in doc if token.is_alpha]

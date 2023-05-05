@@ -21,16 +21,17 @@ class WeatherRecognition:
         self.__geotext = GeoText(config)
         self.__geotext.add(lookup)
 
-    def get_location_date(self, text: str):
-        location = self.__extract_location(text)
+    async def get_location_date(self, text: str):
+        location = await self.__extract_location(text)
         if location is None:
             return self.LOCATION_NOT_FOUND, None
 
-        date = self.__extract_and_translate_time(text)
+        date = await self.__extract_and_translate_time(text)
         return location, date
 
-    def __extract_location(self, text):
-        results = self.__geotext.extract(input_text=normalize(self.__nlp, text).title(), span_info=True)
+    async def __extract_location(self, text):
+        normalized_text = await normalize(self.__nlp, text)
+        results = self.__geotext.extract(input_text=normalized_text.title(), span_info=True)
 
         country_code = ''
         for country in pycountry.countries:
@@ -44,7 +45,7 @@ class WeatherRecognition:
         return f'{city_name}{country_code}'
 
     @staticmethod
-    def __extract_and_translate_time(text):
+    async def __extract_and_translate_time(text):
         base_date = datetime.now()
 
         parsed_date = search_dates(text, settings={'RELATIVE_BASE': base_date, 'PREFER_DATES_FROM': 'future'})

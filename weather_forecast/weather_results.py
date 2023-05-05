@@ -10,16 +10,16 @@ logger = logger_setup(__name__)
 
 wr = WeatherRecognition()
 
-def get_weather_forecast(message: str):
+async def get_weather_forecast(message: str):
     try:
-        location, date = wr.get_location_date(message)
+        location, date = await wr.get_location_date(message)
 
         if location == WeatherRecognition.LOCATION_NOT_FOUND:
             logger.info('Location is invalid')
             return location_not_found
         logger.debug(f'Extracted data: {location}, {date}')
 
-        weather_request_result = generate_weather_forecast(location, date)
+        weather_request_result = await generate_weather_forecast(location, date)
         split_location = location.split(',')
         if len(split_location) > 1:
             country_code = split_location[1]

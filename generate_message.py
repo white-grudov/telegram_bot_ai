@@ -5,6 +5,9 @@ from intent_classifier import IntentClassifier
 from image_search.image_search import ImageSearch
 from bot_commands import send_text_message, send_image_message
 
+import json
+import asyncio
+
 logger = logger_setup(__name__)
 
 class GenerateMessage:
@@ -16,47 +19,53 @@ class GenerateMessage:
         self.__classifier = IntentClassifier()
         self.__classifier.load_model_from_file('./files/intent_classifier.pkl')
 
-    def __get_intent(self, message: str):
-        intent = self.__classifier.predict_intent(message)
+    async def __get_intent(self, message: str):
+        intent = await self.__classifier.predict_intent(message)
         return intent
 
     async def __respond(self, chat_id, message: str):
         await send_text_message(self.__bot, chat_id, message)
 
     async def __process_weather_request(self, chat_id, message, lang):
-        if lang == 'unknown':
-            await self.__respond(chat_id, 'This language is not supported')
-
-        request_result = get_weather_forecast(message)
-        request_result = self.__tr.translate_from_en(request_result, lang)
+        request_result = await get_weather_forecast(message)
+        request_result = await self.__tr.translate_from_en(request_result, lang)
         logger.debug(f'Translated results: {request_result}')
 
         await self.__respond(chat_id, request_result)
 
     async def __process_image_request(self, chat_id, message, lang):
-        query = self.__image_search.extract_subject(message)
+        query = await self.__image_search.extract_subject(message)
         if query is None:
             await self.__respond(chat_id, 'The search subject is not specified')
 
         logger.debug(f'Search subject: {query}')
 
-        request_url = self.__image_search.search_image(message)
+        with open('./files/messages.json', 'r', encoding='utf-8') as f:
+            wait_message = json.loads(f.read())['wait_message'][lang]
+        await self.__bot.send_message(chat_id=chat_id, text=wait_message)
+
+        request_url = await self.__image_search.search_image(message)
         if request_url is None:
-            self.__respond(chat_id, self.__tr.translate_from_en(
+            self.__respond(chat_id, await self.__tr.translate_from_en(
                 'Unfortunately, the image was not found. Please try another request'))
 
         caption = f'Here is the image according to your query <b>"{query}"</b>'
-        caption = self.__tr.translate_from_en(caption, lang)
+        caption = await self.__tr.translate_from_en(caption, lang)
         logger.debug(f'Caption: {caption}')
         await send_image_message(self.__bot, chat_id, request_url, caption)
 
     async def generate_message(self, chat_id, message: str) -> str:
         try:
-            lang, translated = self.__tr.detect_lang_and_translate_to_en(message)
+            lang, translated = await self.__tr.detect_lang_and_translate_to_en(message)
             logger.debug(f'Request language: {lang}')
             logger.debug(f'Translated: {translated}')
 
-            intent = self.__get_intent(translated)
+            if lang == 'unknown':
+                await self.__respond(chat_id, 'This language is not supported. ' \
+                                     'Type /help to see the list of avaiable languages.')
+                return
+
+            intent = await self.__get_intent(translated)
             logger.info(f'Intent: {intent}')
 
             if intent == 'weather':

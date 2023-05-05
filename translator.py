@@ -1,4 +1,5 @@
 import deepl
+import asyncio
 
 from lingua import Language, LanguageDetectorBuilder
 from config import DEEPL_API_KEY
@@ -21,21 +22,25 @@ class Translator:
 
         self.__detector.load_model_from_file('./files/language_classifier.pkl')
 
-    def detect_lang_from_supported(self, text: str):
-        return self.__detector.predict_language(text)
+    async def detect_lang_from_supported(self, text: str):
+        return await self.__detector.predict_language(text)
     
-    def detect_lang_and_translate_to_en(self, text: str) -> tuple[str, str]:
-        lang = self.detect_lang_from_supported(text)
-        result = self.__translator.translate_text(text, source_lang=lang, target_lang='en-us').text
+    async def detect_lang_and_translate_to_en(self, text: str) -> tuple[str, str]:
+        lang = await self.detect_lang_from_supported(text)
+        tr_lang = 'en' if lang == 'en-us' else lang
+        if tr_lang == 'unknown':
+            result = None
+        else:
+            result = self.__translator.translate_text(text, source_lang=tr_lang, target_lang='en-us').text
         return lang, result
 
-    def translate_from_en(self, text: str, lang: str) -> str:
+    async def translate_from_en(self, text: str, lang: str) -> str:
         if lang == 'en-us':
             return text
         result = self.__translator.translate_text(text, source_lang='en', target_lang=lang)
         return result.text
 
-    def translate_to(self, text: str, lang: str) -> str:
+    async def translate_to(self, text: str, lang: str) -> str:
         result = self.__translator.translate_text(text, target_lang=lang)
         return result.text
     
@@ -43,8 +48,7 @@ class Translator:
     def supported_languages(self):
         return LANGUAGES.values()
 
-
-if __name__ == '__main__':
+async def main():
     tr = Translator()
 
     # first_text = 'Знайди зображення милого котика.'
@@ -52,4 +56,7 @@ if __name__ == '__main__':
     lang = 'uk'
 
     second_text = 'a cute cat'
-    print(tr.translate_from_en(second_text, lang))
+    print(await tr.translate_from_en(second_text, lang))
+
+if __name__ == '__main__':
+    asyncio.run(main)
