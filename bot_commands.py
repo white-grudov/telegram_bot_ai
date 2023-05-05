@@ -1,11 +1,15 @@
 from aiogram import Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.types import Message, CallbackQuery
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.dispatcher.storage import FSMContext
 
 import json
 from translator import Translator
 from logger_setup import logger_setup
 from config import USERNAME
+
+from text_summarization.text_summarizer import summarize_text
 
 logger = logger_setup(__name__)
 
@@ -21,6 +25,9 @@ buttons = [
     InlineKeyboardButton('🇩🇪', callback_data=languages[4]),
     InlineKeyboardButton('🇫🇷', callback_data=languages[5]),
 ]
+
+class TextInputState(StatesGroup):
+    waiting_for_text = State()
 
 async def get_help_message(lang: str) -> str:
     with open('./files/messages.json', 'r', encoding='utf-8') as f:
@@ -45,7 +52,7 @@ async def start_command_handler(message: Message):
 
 async def help_command_handler(message: Message):
     keyboard = InlineKeyboardMarkup(row_width=6).add(*buttons)
-    await message.answer(get_help_message('en-us'), reply_markup=keyboard, parse_mode='html')
+    await message.answer(await get_help_message('en-us'), reply_markup=keyboard, parse_mode='html')
 
 async def send_text_message(bot: Bot, chat_id: str, text: str):
     logger.info(f'Request result: {text}')
@@ -55,7 +62,7 @@ async def send_image_message(bot: Bot, chat_id: str, image_url: str, caption=Non
     logger.info(f'Request image url: {image_url}')
     await bot.send_photo(chat_id=chat_id, photo=image_url, caption=caption, parse_mode='html')
 
-async def echo_message(message: Message, generate):
+async def process_request(message: Message, generate):
     if message.chat.type == 'group':
         if USERNAME not in message.text:
             return
@@ -70,3 +77,18 @@ async def echo_message(message: Message, generate):
     logger.info(f'Message text: {input_message}')
 
     await generate.generate_message(message.chat.id, input_message)
+
+async def process_summarize(bot: Bot, chat_id: int, lang: str):
+    await TextInputState.waiting_for_text.set()
+
+    with open('./files/messages.json', 'r', encoding='utf-8') as f:
+        enter_text_message = json.loads(f.read())['enter_text_message'][lang]
+    await bot.send_message(chat_id=chat_id, text=enter_text_message)
+
+async def process_text(message: Message, state: FSMContext):
+    user_text = message.text
+
+    response_text = await summarize_text(user_text)
+
+    await message.answer(response_text)
+    await state.finish()

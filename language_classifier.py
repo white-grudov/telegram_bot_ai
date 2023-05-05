@@ -65,4 +65,4 @@ async def main():
     # await test_model(model_filename)
 
 if __name__ == '__main__':
-    asyncio.run(main)
+    asyncio.run(main())

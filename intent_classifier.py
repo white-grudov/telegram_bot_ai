@@ -82,8 +82,8 @@ async def main():
     dataset_filename = './files/intent_classifier_dataset.json'
     model_filename = './files/intent_classifier.pkl'
 
-    await create_model(dataset_filename, model_filename)
+    # await create_model(dataset_filename, model_filename)
     await test_model(model_filename)
 
 if __name__ == '__main__':
-    asyncio.run(main)
+    asyncio.run(main())

@@ -21,27 +21,32 @@ class ImageSearch:
         noun_phrases = []
         verb_phrases = []
         for chunk in doc.noun_chunks:
-            noun_phrases.append(chunk.text)
+            for word in chunk.text.split(' '):
+                noun_phrases.append(word)
         for token in doc:
             if token.pos_ == 'VERB':
                 verb = token.text_with_ws + ''.join([child.text_with_ws for child in token.children if child.dep_ in ('advmod', 'acomp', 'attr', 'prep', 'oprd')])
                 verb_phrases.append(verb.strip())
 
-        phrases = noun_phrases + verb_phrases[1:]
-        new_phrases = []
-        for phrase in phrases:
-            words = phrase.split()
-            new_phrase = ' '.join([word for word in words if word.lower() not in STOP_WORDS])
-            if new_phrase != '' and new_phrase not in new_phrases:
-                new_phrases.append(new_phrase)
+        try:
+            phrases = noun_phrases + verb_phrases[1:]
+            new_phrases = []
+            for phrase in phrases:
+                words = phrase.split()
+                new_phrase = ' '.join([word for word in words if word.lower() not in STOP_WORDS])
+                if new_phrase != '' and new_phrase not in new_phrases:
+                    new_phrases.append(new_phrase)
 
-        keywords = new_phrases[1:]
-            
-        start_index = search_query.find(keywords[0])
-        end_index = search_query.find(keywords[-1]) + len(keywords[-1])
+            keywords = new_phrases[1:]
+                
+            start_index = search_query.find(keywords[0])
+            end_index = search_query.find(keywords[-1]) + len(keywords[-1])
 
-        interval = search_query[start_index:end_index]
-        return interval
+            interval = search_query[start_index:end_index]
+            return interval
+        
+        except IndexError:
+            return None
 
     async def __get_search_params(self, text: str) -> dict:
         return {
