@@ -1,6 +1,8 @@
 import spacy
 import random
 import asyncio
+import re
+
 from google_images_search import GoogleImagesSearch
 from spacy.lang.en.stop_words import STOP_WORDS
 
@@ -39,10 +41,15 @@ class ImageSearch:
 
             keywords = new_phrases[1:]
                 
-            start_index = search_query.find(keywords[0])
-            end_index = search_query.find(keywords[-1]) + len(keywords[-1])
+            pattern = r"\b(" + "|".join(keywords) + r")\b"
+            matches = re.findall(pattern, search_query)
+            if not matches:
+                return None
 
-            interval = search_query[start_index:end_index]
+            start_pos = search_query.index(matches[0])
+            end_pos = search_query.rindex(matches[-1])
+
+            interval = search_query[start_pos:end_pos + len(matches[-1])]
             return interval
         
         except IndexError:

@@ -3,6 +3,29 @@ from config import OPENWEATHERMAP_API_KEY as API_KEY
 import requests
 import asyncio
 
+async def __get_emoji(code: int) -> str:
+    emoji_map = {
+        range(200, 233): '⛈',
+        range(300, 322): '🌧',
+        range(500, 532): '🌦',
+        range(600, 623): '❄️',
+        range(701, 782): '🌫',
+        800: '☀️',
+        801: '🌤',
+        802: '⛅️',
+        803: '🌥',
+        804: '☁️'
+    }
+
+    for key, value in emoji_map.items():
+        if isinstance(key, int):
+            if code == key:
+                return value
+        elif code in key:
+            return value
+
+    return ''
+
 async def __date_to_string(date_str: str) -> str:
     date_object = datetime.strptime(date_str, '%Y-%m-%d')
 
@@ -28,7 +51,9 @@ async def __get_weather_forecast(location, lat, lon, days):
     weather_description = daily_weather[days]['weather'][0]['description']
     temperature_min = daily_weather[days]['temp']['min'] - 273.15
     temperature_max = daily_weather[days]['temp']['max'] - 273.15
-    return f"On {date_str}, the weather in {location} is expected to be {weather_description} with a minimum " \
+
+    emoji = await __get_emoji(daily_weather[days]['weather'][0]['id'])
+    return f"{emoji} On {date_str}, the weather in {location} is expected to be {weather_description} with a minimum " \
            f"temperature of {temperature_min:.2f}°C and a maximum temperature of {temperature_max:.2f}°C."
 
 async def __get_weather_today(location, lat, lon, date):
@@ -41,7 +66,8 @@ async def __get_weather_today(location, lat, lon, date):
     weather_description = response['current']['weather'][0]['description']
     temperature = response['current']['temp'] - 273.15
 
-    return f"The weather in {location} on {await __date_to_string(date)} is {weather_description} with " \
+    emoji = await __get_emoji(response['current']['weather'][0]['id'])
+    return f"{emoji} The weather in {location} on {await __date_to_string(date)} is {weather_description} with " \
            f"a temperature of {temperature:.2f}°C."
 
 async def generate_weather_forecast(location, date):
