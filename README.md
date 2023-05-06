@@ -32,3 +32,6 @@
 ### Скорочення тексту
 ![Screenshot 6](https://i.ibb.co/Rg6SHsF/6.png)
 ![Screenshot 7](https://i.ibb.co/yks22dR/7.png)
+
+### Обробка некоретних запитів
+![Screenshot 8](https://i.ibb.co/T0fmcV4/8.png)
