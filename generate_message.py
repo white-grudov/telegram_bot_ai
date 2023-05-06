@@ -58,9 +58,11 @@ class GenerateMessage:
 
         with open('./files/messages.json', 'r', encoding='utf-8') as f:
             wait_message = json.loads(f.read())['wait_message'][lang]
-        await self.__bot.send_message(chat_id=chat_id, text=wait_message)
+        sent_wait_message = await self.__bot.send_message(chat_id=chat_id, text=wait_message)
 
         request_url = await self.__image_search.search_image(message)
+        await self.__bot.delete_message(chat_id, sent_wait_message.message_id)
+
         if request_url is None:
             with open('./files/messages.json', 'r', encoding='utf-8') as f:
                 not_found_message = json.loads(f.read())['image_not_found_message'][lang]

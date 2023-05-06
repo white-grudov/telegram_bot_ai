@@ -1,22 +1,18 @@
-from nltk.tokenize import sent_tokenize, word_tokenize
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import TfidfVectorizer
-import numpy as np
+import spacy
+import re
 
-async def summarize_text(text: str, num_sentences=2) -> str:
-    sentences = sent_tokenize(text)
+from transformers import pipeline
 
-    stop_words = set(stopwords.words('english'))
-    word_tokens = [word_tokenize(sentence.lower()) for sentence in sentences]
-    filtered_words = [[word for word in words if word not in stop_words] for words in word_tokens]
+nlp = spacy.load('en_core_web_sm')
 
-    vectorizer = TfidfVectorizer(use_idf=True)
-    X = vectorizer.fit_transform([' '.join(words) for words in filtered_words])
+async def summarize_text(text):
+    summarizer = pipeline(
+        "summarization",
+        model="sshleifer/distilbart-cnn-12-6",
+        revision="a4f8f3e"
+    )
+    summary = summarizer(text, max_length=150, min_length=50, do_sample=False)
+    summary_sentences = re.findall(r'([^.]*\.)', summary[0]['summary_text'])[:2]
+    final_summary = ' '.join(summary_sentences).replace(" .", ".")
 
-    scores = np.sum(X, axis=1)
-    scores = np.squeeze(np.asarray(scores))
-
-    sorted_indices = np.argsort(scores)[::-1]
-
-    summary = ' '.join([sentences[i] for i in sorted_indices[:num_sentences]])
-    return summary
+    return final_summary

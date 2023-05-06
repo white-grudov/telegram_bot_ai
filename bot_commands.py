@@ -87,8 +87,21 @@ async def process_summarize(bot: Bot, chat_id: int, lang: str):
 
 async def process_text(message: Message, state: FSMContext):
     user_text = message.text
+    lang, translated = await tr.detect_lang_and_translate_to_en(user_text)
 
-    response_text = await summarize_text(user_text)
+    if len(translated) < 500:
+        with open('./files/messages.json', 'r', encoding='utf-8') as f:
+            too_short_message = json.loads(f.read())['too_short_message'][lang]
+        await message.answer(too_short_message)
 
-    await message.answer(response_text)
+    with open('./files/messages.json', 'r', encoding='utf-8') as f:
+        wait_message = json.loads(f.read())['wait_message'][lang]
+    sent_wait_message = await message.answer(wait_message)
+
+    response_text = await summarize_text(translated)
+    translated_response = await tr.translate_from_en(response_text, lang)
+
+    await sent_wait_message.delete()
+
+    await message.answer(translated_response)
     await state.finish()

@@ -38,10 +38,15 @@ async def main():
     dp.register_message_handler(help_command_handler, commands='help')
     dp.register_message_handler(lambda m, g=generate: process_request(m, g),
                                 content_types=ContentType.TEXT)
-    dp.register_message_handler(process_text, lambda message: message.text, state=TextInputState.waiting_for_text)
+    dp.register_message_handler(process_text, 
+                                lambda message: message.text, 
+                                state=TextInputState.waiting_for_text)
     
     logger.info('The bot is starting...')
-    await dp.start_polling()
+    try:
+        await dp.start_polling()
+    finally:
+        await bot.session.close()
 
 if __name__ == '__main__':
     asyncio.run(main())

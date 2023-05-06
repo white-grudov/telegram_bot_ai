@@ -28,7 +28,7 @@ class LanguageClassifier:
         print(classification_report(y_test, y_pred))
         print(confusion_matrix(y_test, y_pred))
 
-    async def predict_language(self, text: str, threshold=0.5) -> str:
+    async def predict_language(self, text: str, threshold=0.4) -> str:
         predicted_language = self.__pipeline.predict([text])[0]
         confidence = max(self.__pipeline.predict_proba([text])[0])
 
@@ -49,8 +49,8 @@ async def test_model(model_filename):
 
     while True:
         message = input('Enter: ')
-        predicted_intent = classifier.predict_language(message)
-        print("Predicted language:", predicted_intent)
+        predicted_language = await classifier.predict_language(message)
+        print("Predicted language:", predicted_language)
 
 async def create_model(dataset_filename, model_filename):
     classifier = LanguageClassifier()
@@ -61,8 +61,8 @@ async def main():
     dataset_filename = './files/languages.csv'
     model_filename = './files/language_classifier.pkl'
 
-    await create_model(dataset_filename, model_filename)
-    # await test_model(model_filename)
+    # await create_model(dataset_filename, model_filename)
+    await test_model(model_filename)
 
 if __name__ == '__main__':
     asyncio.run(main())

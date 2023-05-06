@@ -54,5 +54,13 @@
         "es": "📍 Desafortunadamente, no puedo encontrar esta ubicación. Por favor, inténtelo de nuevo especificando otra ubicación.",
         "de": "📍 Leider kann ich diesen Ort nicht finden. Bitte versuchen Sie es mit einer neuen Anfrage unter Angabe eines anderen Ortes.",
         "fr": "📍 Malheureusement, je ne trouve pas cet emplacement. Veuillez essayer une nouvelle demande en spécifiant un autre emplacement."
+    },
+    "too_short_message": {
+        "en-us": "✏️ The text is too short for summarization. Please send a shorter text for a more effective result.",
+        "uk": "✏️ Текст занадто короткий для підсумовування. Будь ласка, надішліть коротший текст для більш ефективного результату.",
+        "pl": "✏️ Tekst jest zbyt krótki, aby go streścić. Proszę przesłać krótszy tekst, aby uzyskać bardziej efektywny wynik.",
+        "es": "✏️ El texto es demasiado corto para resumirlo. Por favor, envíe un texto más corto para un resultado más eficaz.",
+        "de": "✏️ Der Text ist zu kurz für eine Zusammenfassung. Bitte senden Sie einen kürzeren Text, um ein besseres Ergebnis zu erzielen.",
+        "fr": "✏️ Le texte est trop court pour être résumé. Veuillez envoyer un texte plus court pour un résultat plus efficace."
     }
 }
