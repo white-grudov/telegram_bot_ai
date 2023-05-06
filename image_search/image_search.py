@@ -24,7 +24,7 @@ class ImageSearch:
             for word in chunk.text.split(' '):
                 noun_phrases.append(word)
         for token in doc:
-            if token.pos_ == 'VERB':
+            if token.pos_ in ['NOUN', 'VERB', 'ADJ', 'CONJ']:
                 verb = token.text_with_ws + ''.join([child.text_with_ws for child in token.children if child.dep_ in ('advmod', 'acomp', 'attr', 'prep', 'oprd')])
                 verb_phrases.append(verb.strip())
 

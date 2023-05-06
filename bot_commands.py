@@ -9,11 +9,12 @@ from translator import Translator
 from logger_setup import logger_setup
 from config import USERNAME
 
-from text_summarization.text_summarizer import summarize_text
+from text_summarization.text_summarizer import TextSummarizer
 
 logger = logger_setup(__name__)
 
 tr = Translator()
+ts = TextSummarizer()
 
 languages = ['en-us', 'uk', 'pl', 'es', 'de', 'fr']
 
@@ -87,19 +88,26 @@ async def process_summarize(bot: Bot, chat_id: int, lang: str):
 
 async def process_text(message: Message, state: FSMContext):
     user_text = message.text
+    logger.debug(f'User text: {user_text[:50]}...')
+
     lang, translated = await tr.detect_lang_and_translate_to_en(user_text)
+    logger.debug(f'User text lang: {lang}')
+    logger.debug(f'User text translated: {translated[:50]}...')
 
     if len(translated) < 500:
         with open('./files/messages.json', 'r', encoding='utf-8') as f:
             too_short_message = json.loads(f.read())['too_short_message'][lang]
+        logger.debug(f'Text too short')
         await message.answer(too_short_message)
 
     with open('./files/messages.json', 'r', encoding='utf-8') as f:
         wait_message = json.loads(f.read())['wait_message'][lang]
     sent_wait_message = await message.answer(wait_message)
 
-    response_text = await summarize_text(translated)
+    response_text = await ts.summarize_text(translated)
+    logger.debug(f'Summarized text: {response_text}')
     translated_response = await tr.translate_from_en(response_text, lang)
+    logger.debug(f'Summarized text translated: {translated_response}')
 
     await sent_wait_message.delete()
 
