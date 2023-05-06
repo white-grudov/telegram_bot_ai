@@ -16,19 +16,19 @@
 
 - **Короткий переказ тексту**: користувач вводить повідомлення типу "Надай мені короткий переказ тексту", бот розпізнає намір "короткий переказ", скорочує текст за допомогою пайплайну `summarize` з бібліотеки Hugging Face's Transformers і повертає скорочений текст користувачеві.
 
-### Приклади запитів і відповідей
+# Приклади запитів і відповідей
 
+### Команда `/help`
 ![Screenshot 1](https://i.ibb.co/DwD888h/1.png)
 ![Screenshot 2](https://i.ibb.co/58tfXJY/2.png)
-Команда `/help`
 
+### Запити з погодою
 ![Screenshot 3](https://i.ibb.co/vPbg1S8/3.png)
-Запити з погодою
 
+### Пошук зображень
 ![Screenshot 4](https://i.ibb.co/B3d8DCw/4.png)
 ![Screenshot 5](https://i.ibb.co/gJMBms7/5.png)
-Пошук зображень
 
+### Скорочення тексту
 ![Screenshot 6](https://i.ibb.co/Rg6SHsF/6.png)
 ![Screenshot 7](https://i.ibb.co/yks22dR/7.png)
-Скорочення тексту
