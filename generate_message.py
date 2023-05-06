@@ -19,12 +19,17 @@ class GenerateMessage:
         self.__image_search = ImageSearch()
         self.__classifier = IntentClassifier()
         self.__classifier.load_model_from_file('./files/intent_classifier.pkl')
+        self.__filename = './files/messages.json'
 
         self.__process_methods = {
             'weather': self.__process_weather_request,
             'image': self.__process_image_request,
             'summarize': self.__process_summary_request
         }
+
+    async def __get_message_from_file(self, key: str, lang: str) -> str:
+        with open(self.__filename, 'r', encoding='utf-8') as f:
+            return json.loads(f.read())[key][lang]
 
     async def __get_intent(self, message: str):
         intent = await self.__classifier.predict_intent(message)
@@ -36,9 +41,16 @@ class GenerateMessage:
     async def __process_weather_request(self, chat_id, message, lang):
         request_result = await get_weather_forecast(message)
         if request_result == 'invalid_location_message':
-            with open('./files/messages.json', 'r', encoding='utf-8') as f:
-                location_not_found = json.loads(f.read())['invalid_location_message'][lang]
+            location_not_found = await self.__get_message_from_file('invalid_location_message', lang)
             await self.__respond(chat_id, location_not_found)
+            return
+        elif request_result == 'wrong_date_message':
+            wrong_date = await self.__get_message_from_file('wrong_date_message', lang)
+            await self.__respond(chat_id, wrong_date)
+            return
+        elif request_result == 'date_interval_message':
+            wrong_date = await self.__get_message_from_file('date_interval_message', lang)
+            await self.__respond(chat_id, wrong_date)
             return
 
         request_result = await self.__tr.translate_from_en(request_result, lang)
@@ -49,23 +61,20 @@ class GenerateMessage:
     async def __process_image_request(self, chat_id, message, lang):
         query = await self.__image_search.extract_subject(message)
         if query is None:
-            with open('./files/messages.json', 'r', encoding='utf-8') as f:
-                not_specified_message = json.loads(f.read())['subject_not_specified_message'][lang]
+            not_specified_message = await self.__get_message_from_file('subject_not_specified_message', lang)
             await self.__respond(chat_id, not_specified_message)
             return
 
         logger.debug(f'Search subject: {query}')
 
-        with open('./files/messages.json', 'r', encoding='utf-8') as f:
-            wait_message = json.loads(f.read())['wait_message'][lang]
+        wait_message = await self.__get_message_from_file('wait_message', lang)
         sent_wait_message = await self.__bot.send_message(chat_id=chat_id, text=wait_message)
 
         request_url = await self.__image_search.search_image(message)
         await self.__bot.delete_message(chat_id, sent_wait_message.message_id)
 
         if request_url is None:
-            with open('./files/messages.json', 'r', encoding='utf-8') as f:
-                not_found_message = json.loads(f.read())['image_not_found_message'][lang]
+            not_found_message = await self.__get_message_from_file('image_not_found_message', lang)
             await self.__respond(chat_id, not_found_message)
             return
 
@@ -94,8 +103,7 @@ class GenerateMessage:
             if intent in self.__process_methods:
                 await self.__process_methods[intent](chat_id, translated, lang)
             else:
-                with open('./files/messages.json', 'r', encoding='utf-8') as f:
-                    unrecognized_message = json.loads(f.read())['unrecognized_intent_message'][lang]
+                unrecognized_message = await self.__get_message_from_file('unrecognized_intent_message', lang)
                 await self.__respond(chat_id, unrecognized_message)
 
         except Exception as e:

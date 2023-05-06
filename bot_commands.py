@@ -79,11 +79,14 @@ async def process_request(message: Message, generate):
 
     await generate.generate_message(message.chat.id, input_message)
 
+async def __get_message_from_file(key: str, lang: str) -> str:
+    with open('./files/messages.json', 'r', encoding='utf-8') as f:
+        return json.loads(f.read())[key][lang]
+
 async def process_summarize(bot: Bot, chat_id: int, lang: str):
     await TextInputState.waiting_for_text.set()
 
-    with open('./files/messages.json', 'r', encoding='utf-8') as f:
-        enter_text_message = json.loads(f.read())['enter_text_message'][lang]
+    enter_text_message = await __get_message_from_file('enter_text_message', lang)
     await bot.send_message(chat_id=chat_id, text=enter_text_message)
 
 async def process_text(message: Message, state: FSMContext):
@@ -95,13 +98,14 @@ async def process_text(message: Message, state: FSMContext):
     logger.debug(f'User text translated: {translated[:50]}...')
 
     if len(translated) < 500:
-        with open('./files/messages.json', 'r', encoding='utf-8') as f:
-            too_short_message = json.loads(f.read())['too_short_message'][lang]
+        too_short_message = await __get_message_from_file('too_short_message', lang)
         logger.debug(f'Text too short')
         await message.answer(too_short_message)
 
-    with open('./files/messages.json', 'r', encoding='utf-8') as f:
-        wait_message = json.loads(f.read())['wait_message'][lang]
+        await state.finish()
+        return
+
+    wait_message = await __get_message_from_file('wait_message', lang)
     sent_wait_message = await message.answer(wait_message)
 
     response_text = await ts.summarize_text(translated)

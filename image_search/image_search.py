@@ -1,13 +1,13 @@
 import spacy
-import random
 import asyncio
 import re
+import requests
+import json
 
-from google_images_search import GoogleImagesSearch
+from random import randint
 from spacy.lang.en.stop_words import STOP_WORDS
 
 from config import GOOGLE_API_KEY, GOOGLE_API_SECRET
-from text_normalize import normalize
 from logger_setup import logger_setup
 
 logger = logger_setup(__name__)
@@ -15,7 +15,7 @@ logger = logger_setup(__name__)
 class ImageSearch:
     def __init__(self):
         self.__nlp = spacy.load('en_core_web_sm')
-        self.__gis = GoogleImagesSearch(GOOGLE_API_KEY, GOOGLE_API_SECRET)
+        self.__url = "https://www.googleapis.com/customsearch/v1"
 
     async def extract_subject(self, search_query):
         doc = self.__nlp(search_query)
@@ -49,14 +49,20 @@ class ImageSearch:
             start_pos = search_query.index(matches[0])
             end_pos = search_query.rindex(matches[-1])
 
+            if start_pos == 0:
+                return None
+
             interval = search_query[start_pos:end_pos + len(matches[-1])]
             return interval
         
-        except IndexError:
+        except Exception:
             return None
 
     async def __get_search_params(self, text: str) -> dict:
         return {
+            "key": GOOGLE_API_KEY,
+            "cx": GOOGLE_API_SECRET,
+            "searchType": "image",
             'q': text,
             'num': 10,
             'save': 'active',
@@ -64,18 +70,20 @@ class ImageSearch:
         }
 
     async def search_image(self, text: str):
-        self.__gis.search(await self.__get_search_params(text))
-        results = self.__gis.results()
-        if len(results) == 0:
+        response = requests.get(self.__url, params=await self.__get_search_params(text))
+        data = json.loads(response.text)
+        if not 'items' in data:
             return None
-        result = random.choice(results)
-        return result.url
+
+        image_url = data["items"][randint(1, min(10, len(data['items']) - 1))]["link"]
+        return image_url
 
 async def main():
     query = 'Give me an image of cute cat'
     
     image_search = ImageSearch()
-    print(await image_search.search_image(query))
+    processed_request = image_search.extract_subject(query)
+    print(await image_search.search_image(processed_request))
 
 if __name__ == '__main__':
-    asyncio.run(main)
+    asyncio.run(main())

@@ -62,5 +62,21 @@
         "es": "✏️ El texto es demasiado corto para resumirlo. Por favor, envíe un texto más corto para un resultado más eficaz.",
         "de": "✏️ Der Text ist zu kurz für eine Zusammenfassung. Bitte senden Sie einen kürzeren Text, um ein besseres Ergebnis zu erzielen.",
         "fr": "✏️ Le texte est trop court pour être résumé. Veuillez envoyer un texte plus court pour un résultat plus efficace."
+    },
+    "wrong_date_message": {
+        "en-us": "😟 Wrong date specified. Please try again with the date in range of 8 days.",
+        "uk": "😟 Неправильно вказана дата. Будь ласка, спробуйте ще раз з датою в діапазоні 8 днів.",
+        "pl": "😟 Podana błędna data. Proszę spróbować ponownie z datą w zakresie 8 dni.",
+        "es": "😟 Fecha incorrecta. Por favor, inténtelo de nuevo con la fecha en el rango de 8 días.",
+        "de": "😟 Falsches Datum angegeben. Bitte versuchen Sie es erneut mit einem Datum im Bereich von 8 Tagen.",
+        "fr": "😟 La date indiquée n'est pas la bonne. Veuillez réessayer avec une date comprise dans une fourchette de 8 jours."
+    },
+    "date_interval_message": {
+        "en-us": "😟 You have specified a date range, instread of the exact date. Please try again specifying the exact date.",
+        "uk": "😟 Ви вказали діапазон дат, але не точну дату. Будь ласка, спробуйте ще раз, вказавши точну дату.",
+        "pl": "😟 Podałeś zakres dat, zamiast dokładnej daty. Proszę spróbować ponownie określając dokładną datę.",
+        "es": "😟 Ha especificado un intervalo de fechas en lugar de la fecha exacta. Por favor, inténtelo de nuevo especificando la fecha exacta.",
+        "de": "😟 Sie haben einen Datumsbereich und nicht das genaue Datum angegeben. Bitte versuchen Sie erneut, das genaue Datum anzugeben.",
+        "fr": "😟 Vous avez spécifié une fourchette de dates au lieu de la date exacte. Veuillez réessayer en spécifiant la date exacte."
     }
 }

@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 from config import OPENWEATHERMAP_API_KEY as API_KEY
+
 import requests
 import asyncio
+import json
 
 async def __get_emoji(code: int) -> str:
     emoji_map = {
@@ -56,20 +58,6 @@ async def __get_weather_forecast(location, lat, lon, days):
     return f"{emoji} On {date_str}, the weather in {location} is expected to be {weather_description} with a minimum " \
            f"temperature of {temperature_min:.2f}°C and a maximum temperature of {temperature_max:.2f}°C."
 
-async def __get_weather_today(location, lat, lon, date):
-    date_unix = int(datetime.strptime(date, "%Y-%m-%d").timestamp())
-
-    url = f"https://api.openweathermap.org/data/2.5/onecall/timemachine?lat={lat}&lon={lon}" \
-          f"&dt={date_unix}&appid={API_KEY}"
-    response = requests.get(url).json()
-
-    weather_description = response['current']['weather'][0]['description']
-    temperature = response['current']['temp'] - 273.15
-
-    emoji = await __get_emoji(response['current']['weather'][0]['id'])
-    return f"{emoji} The weather in {location} on {await __date_to_string(date)} is {weather_description} with " \
-           f"a temperature of {temperature:.2f}°C."
-
 async def generate_weather_forecast(location, date):
     url = f"http://api.openweathermap.org/geo/1.0/direct?q={location}&limit=1&appid={API_KEY}"
     response = requests.get(url).json()
@@ -81,16 +69,14 @@ async def generate_weather_forecast(location, date):
 
     diff_days = (date_obj - current_date).days
 
-    if diff_days == 0:
-        return await __get_weather_today(location, lat, lon, date)
-    elif 0 < diff_days < 8:
+    if 0 <= diff_days <= 7:
         return await __get_weather_forecast(location, lat, lon, diff_days)
     else:
-        return 'Wrong date specified'
+        return 'wrong_date_message'
 
 async def main():
     my_location, my_date = 'Helsinki', '2023-04-21'
     print(await generate_weather_forecast(my_location, my_date))
 
 if __name__ == '__main__':
-    asyncio.run(main)
+    asyncio.run(main())

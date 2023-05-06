@@ -2,6 +2,7 @@ import spacy
 import pycountry
 
 from dateparser.search import search_dates
+from dateparser import parse
 
 from flashgeotext.geotext import GeoText, GeoTextConfiguration
 from flashgeotext.lookup import LookupData, load_data_from_file
@@ -44,13 +45,25 @@ class WeatherRecognition:
 
         return f'{city_name}{country_code}'
 
-    @staticmethod
-    async def __extract_and_translate_time(text):
+    def __extract_date_phrase(self, text):
+        doc = self.__nlp(text)
+        date_phrases = []
+        for token in doc:
+            if token.ent_type_ == "DATE" or token.text in ["today", "tomorrow", "week", "before", "after"]:
+                date_phrase = token.text
+                date_phrases.append(date_phrase)
+        return ' '.join(date_phrases)
+
+    async def __extract_and_translate_time(self, text):
+        date_str = self.__extract_date_phrase(text)
         base_date = datetime.now()
 
-        parsed_date = search_dates(text, settings={'RELATIVE_BASE': base_date, 'PREFER_DATES_FROM': 'future'})
+        parser_date = parse(date_str, settings={'RELATIVE_BASE': base_date, 'PREFER_DATES_FROM': 'future'})
+        searched_date = search_dates(date_str, settings={'RELATIVE_BASE': base_date, 'PREFER_DATES_FROM': 'future'})
 
-        if parsed_date is None:
+        if searched_date == None:
             return str(base_date.date())
-
-        return str(parsed_date[0][1].date())
+        elif parser_date == None:
+            return 'date_interval_message'
+        else:
+            return str(parser_date.date())

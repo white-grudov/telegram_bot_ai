@@ -14,6 +14,8 @@ async def get_weather_forecast(message: str):
     if location == WeatherRecognition.LOCATION_NOT_FOUND:
         logger.info('Location is invalid')
         return 'invalid_location_message'
+    if date == 'date_interval_message':
+        return date
     logger.debug(f'Extracted data: {location}, {date}')
 
     weather_request_result = await generate_weather_forecast(location, date)
