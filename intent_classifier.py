@@ -16,7 +16,8 @@ class IntentClassifier:
         self.__nlp = spacy.load('en_core_web_sm')
         self.__pipeline = None
 
-    async def __load_data(self, dataset_filename):
+    @staticmethod
+    async def __load_data(dataset_filename):
         dataset = []
 
         with open(dataset_filename, "r") as f:

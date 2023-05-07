@@ -83,10 +83,10 @@ class GenerateMessage:
         logger.debug(f'Caption: {caption}')
         await send_image_message(self.__bot, chat_id, request_url, caption)
 
-    async def __process_summary_request(self, chat_id, message, lang):
+    async def __process_summary_request(self, chat_id, _, lang):
         await process_summarize(self.__bot, chat_id, lang)
 
-    async def generate_message(self, chat_id, message: str) -> str:
+    async def generate_message(self, chat_id, message: str):
         try:
             lang, translated = await self.__tr.detect_lang_and_translate_to_en(message)
             logger.debug(f'Request language: {lang}')

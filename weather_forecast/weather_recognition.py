@@ -12,6 +12,7 @@ from text_normalize import normalize
 
 class WeatherRecognition:
     LOCATION_NOT_FOUND = 0
+    DATE_NOT_FOUND = 1
 
     def __init__(self):
         self.__nlp = spacy.load("en_core_web_sm")
@@ -28,6 +29,8 @@ class WeatherRecognition:
             return self.LOCATION_NOT_FOUND, None
 
         date = await self.__extract_and_translate_time(text)
+        if date is None:
+            return location, self.DATE_NOT_FOUND
         return location, date
 
     async def __extract_location(self, text: str):
@@ -61,9 +64,9 @@ class WeatherRecognition:
         parser_date = parse(date_str, settings={'RELATIVE_BASE': base_date, 'PREFER_DATES_FROM': 'future'})
         searched_date = search_dates(date_str, settings={'RELATIVE_BASE': base_date, 'PREFER_DATES_FROM': 'future'})
 
-        if searched_date == None:
+        if searched_date is None:
             return str(base_date.date())
-        elif parser_date == None:
-            return 'date_interval_message'
+        elif parser_date is None:
+            return None
         else:
             return str(parser_date.date())

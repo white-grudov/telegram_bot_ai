@@ -1,9 +1,8 @@
 import spacy
-import nltk
 import re
 import heapq
+
 from transformers import pipeline
-from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 class TextSummarizer:

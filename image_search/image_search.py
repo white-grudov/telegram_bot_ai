@@ -40,7 +40,7 @@ class ImageSearch:
                     new_phrases.append(new_phrase)
 
             keywords = new_phrases[1:]
-                
+
             pattern = r"\b(" + "|".join(keywords) + r")\b"
             matches = re.findall(pattern, search_query)
             if not matches:
@@ -54,11 +54,12 @@ class ImageSearch:
 
             interval = search_query[start_pos:end_pos + len(matches[-1])]
             return interval
-        
+
         except Exception:
             return None
 
-    async def __get_search_params(self, text: str) -> dict:
+    @staticmethod
+    async def __get_search_params(text: str) -> dict:
         return {
             "key": GOOGLE_API_KEY,
             "cx": GOOGLE_API_SECRET,
@@ -72,7 +73,7 @@ class ImageSearch:
     async def search_image(self, text: str):
         response = requests.get(self.__url, params=await self.__get_search_params(text))
         data = json.loads(response.text)
-        if not 'items' in data:
+        if 'items' not in data:
             return None
 
         image_url = data["items"][randint(1, min(10, len(data['items']) - 1))]["link"]
@@ -80,7 +81,7 @@ class ImageSearch:
 
 async def main():
     query = 'Give me an image of cute cat'
-    
+
     image_search = ImageSearch()
     processed_request = image_search.extract_subject(query)
     print(await image_search.search_image(processed_request))
