@@ -30,7 +30,7 @@ class WeatherRecognition:
         date = await self.__extract_and_translate_time(text)
         return location, date
 
-    async def __extract_location(self, text):
+    async def __extract_location(self, text: str):
         normalized_text = await normalize(self.__nlp, text)
         results = self.__geotext.extract(input_text=normalized_text.title(), span_info=True)
 
