@@ -6,7 +6,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.ensemble import RandomForestClassifier
 
 class LanguageClassifier:
     def __init__(self):
@@ -22,7 +22,7 @@ class LanguageClassifier:
 
         self.__pipeline = Pipeline([
             ('tfidf', TfidfVectorizer()),
-            ('clf', MultinomialNB())
+            ('clf', RandomForestClassifier())
         ])
 
         self.__pipeline.fit(X_train, y_train)
@@ -64,7 +64,7 @@ async def main():
     dataset_filename = './files/languages.csv'
     model_filename = './files/language_classifier.pkl'
 
-    await create_model(dataset_filename, model_filename)
+    # await create_model(dataset_filename, model_filename)
     await test_model(model_filename)
 
 if __name__ == '__main__':
